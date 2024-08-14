@@ -1,0 +1,38 @@
+package com.aksoy.library;
+
+public enum Genre {
+    FANTASY,
+    HISTORICAL,
+    THRILLER,
+    ROMANCE,
+    SCI_FI,
+    MYSTERY,
+    POETRY,
+    DRAMA,
+    CLASSICS,
+    COMEDY,
+    PHILOSOPHY,
+    PSYCHOLOGY,
+    RELIGION_SPIRITUALITY,
+    BUSINESS,
+    YOUNG_ADULT,
+    CHILDREN_LITERATURE,
+    AUTOBIOGRAPHY,
+    BIOGRAPHY,
+    FICTION,
+    SELF_CARE,
+    HOME_GARDEN,
+    WESTERN,
+    OUTDOORS,
+    FAIRY_TALE,
+    DYSTOPIA,
+    TRAVEL,
+    COOKBOOKS,
+    ADVENTURE,
+    HORROR,
+    SPORTS,
+    HISTORY,
+    ART,
+    POPULAR_SCIENCE;
+
+}
