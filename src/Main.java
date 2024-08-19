@@ -171,16 +171,32 @@ public class Main {
                                             Library.getInstance().getLibrarian().createBill(Library.getInstance().bringBook(bookName));
                                             break;
                                         case "calculate fine":
-                                            System.out.println("Cıkarılmasını istediğiniz elemanları giriniz.");
+                                            System.out.println("Geciktirilen gün sayısını giriniz: ");
+                                            int difference = input.nextInt();
+                                            System.out.println("Gecikme için gün başına ödenmesi gereken miktarı giriniz: ");
+                                            double fine = input.nextDouble();
+                                            double totalFine = Library.getInstance().getLibrarian().calculateFine(difference, fine);
+                                            System.out.println("Üyenin ödemesi gereken total gecikme ücreti: " + totalFine);
                                             break;
                                         case "remove book":
-                                            System.out.println("Cıkarılmasını istediğiniz elemanları giriniz.");
+                                            System.out.println("Sistemden çıkarılmasını istediğiniz kitabın idsini giriniz:");
+                                            long bookID = input.nextLong();
+                                            Library.getInstance().getLibrarian().removeBook(bookID);
                                             break;
                                         case "issue book":
-                                            System.out.println("Cıkarılmasını istediğiniz elemanları giriniz.");
+                                            System.out.println("İşlem yapmak istediğiniz kitabın idsini giriniz.");
+                                            long id = input.nextLong();
+                                            System.out.println("İşlemi yapacak üyenin idsini giriniz.");
+                                            long memberID = input.nextLong();
+                                            Member memberToIssue = Library.getInstance().getLibrarian().findMember(memberID);
+                                            Library.getInstance().getLibrarian().issueBook(id, memberToIssue);
                                             break;
                                         case "take book back":
-                                            System.out.println("Cıkarılmasını istediğiniz elemanları giriniz.");
+                                            System.out.println("Üyenin idsini giriniz: ");
+                                            long memberid = input.nextLong();
+                                            System.out.println("Geri verilen kitabın idsini giriniz: ");
+                                            long bookid = input.nextLong();
+                                            Library.getInstance().getLibrarian().takeBookBack(bookid, memberid);
                                             break;
                                         default:
                                             System.out.println("Geçersiz giriş! Verilen işlemlerden birini seçiniz: ");

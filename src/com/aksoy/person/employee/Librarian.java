@@ -4,7 +4,6 @@ import com.aksoy.library.Book;
 import com.aksoy.library.Library;
 import com.aksoy.person.author.Author;
 import com.aksoy.person.member.Member;
-import com.aksoy.person.member.MemberBookMethods;
 
 import java.util.Date;
 import java.util.List;
@@ -90,7 +89,7 @@ public class Librarian extends Employee implements LibrarianBookMethods{
     public boolean verifyMember(String password){
         for(Member member: Library.getInstance().getMembers()){
             if(member.getPassword().equals(password)){
-                System.out.println("Sisteme hoş geldiniz " + member.getName());
+                System.out.println(member.getName() + " adlı üye onaylandı.");
                 System.out.println(member);
                 return true;
             }
@@ -100,18 +99,22 @@ public class Librarian extends Employee implements LibrarianBookMethods{
     }
 
     @Override
-    public void removeBook(Book book) {
+    public void removeBook(long id) {
+        Book book = searchBook(id);
         for(Book kitap: Library.getInstance().getBooks()){
             if(kitap.equals(book)){
                 List<Book> newList = Library.getInstance().getBooks();
                 newList.remove(book);
                 Library.getInstance().setBooks(newList);
+                System.out.println("Kitap başarı bir şekilde sistemden silinmiştir.");
+                break;
             }
         }
+        System.out.println("Aranan kitap sistemde bulunamamıştır.");
     }
 
     @Override
-    public void searchBook(Long id) {
+    public Book searchBook(Long id) {
         boolean result = true;
         for(Book kitap: Library.getInstance().getBooks()){
             if(kitap.getId() == id){
@@ -119,15 +122,16 @@ public class Librarian extends Employee implements LibrarianBookMethods{
                 System.out.println("Sistemde " + id + " idli kitap bulunmaktadır.");
                 if(kitap.isAvailable()){
                     System.out.println("Kitap kiralanabilir.");
+                    return kitap;
                 } else {
                     System.out.println("Kitap başkası tarafından kiralanmıştır.");
+                    return kitap;
                 }
-                break;
             }
         }
         if(result){
             System.out.println("Sistemde bu id ile bir kitap bulunamamıştır.");
-        }
+        } return null;
     }
     @Override
     public void searchBook(String name) {
@@ -168,7 +172,7 @@ public class Librarian extends Employee implements LibrarianBookMethods{
         if(verifyMember(member.getPassword())){
             for(Book kitap: Library.getInstance().getBooks()){
                 if(kitap.getId() == id){
-                    if(kitap.isAvailable()){
+                    if(kitap.isAvailable() && member.getBooksIssued() < 5){
                         kitap.setOwner(member);
                         kitap.setAvailable(false);
                         kitap.setDateOfPurchase(new Date());
@@ -176,7 +180,9 @@ public class Librarian extends Employee implements LibrarianBookMethods{
                         member.incBookIssued();
                         member.getBooks().add(kitap);
                         Library.getInstance().getGivenBooks().put(member, member.getBooks());
-                    } else {
+                    } else if(kitap.isAvailable() && member.getBooksIssued() >= 5) {
+                        System.out.println("Üyenin daha fazla kitap alamaz.");
+                    }else {
                         System.out.println("Kitap başkası tarafından kiralanmıştır.");
                     }
                 } else {
@@ -188,11 +194,13 @@ public class Librarian extends Employee implements LibrarianBookMethods{
         }
     }
     @Override
-    public void takeBookBack(Book book, Member member){
+    public void takeBookBack(long bookid, long memberid){
+        Book book = searchBook(bookid);
         book.setDateOfPurchase(null);
         book.setOwner(null);
         book.setAvailable(true);
         Library.getInstance().getBooks().add(book);
+        Member member = findMember(memberid);
         member.decBookIssued();
         member.getBooks().remove(book);
         Library.getInstance().getGivenBooks().put(member, member.getBooks());
@@ -207,5 +215,13 @@ public class Librarian extends Employee implements LibrarianBookMethods{
     }
     public void createBill(Book book){
         System.out.println("Sisteme ödemeniz gereken tutar: " + book.getRentPrice());
+    }
+    public Member findMember(long id){
+        for(Member member: Library.getInstance().getMembers()){
+            if(member.getId()==id){
+                return member;
+            }
+        }
+        return null;
     }
 }
