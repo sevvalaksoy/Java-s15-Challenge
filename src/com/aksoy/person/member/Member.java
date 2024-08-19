@@ -1,21 +1,25 @@
 package com.aksoy.person.member;
 
+import com.aksoy.library.Book;
+import com.aksoy.library.Library;
 import com.aksoy.person.Person;
+import com.aksoy.person.employee.Manager;
 
-import java.util.Scanner;
+import java.util.*;
 
-public class Member extends Person {
+public class Member extends Person implements MemberBookMethods{
     private long id;
     private String name;
     private Address address;
     private int booksIssued;
-    private String dateOfMembership;
-    private long phoneNumber;
+    private Date dateOfMembership;
+    private String phoneNumber;
     private String password;
     private UserType userType;
+    private List<Book> books;
 
-    public Member(String name, long id, Address address, int booksIssued, String dateOfMembership,
-                  long phoneNumber, String password, UserType userType){
+    public Member(String name, long id, Address address, int booksIssued, Date dateOfMembership,
+                  String phoneNumber, String password, UserType userType, List<Book> books){
         super(name);
         this.id = id;
         this.address = address;
@@ -24,12 +28,21 @@ public class Member extends Person {
         this.phoneNumber = phoneNumber;
         this.password = password;
         this.userType = userType;
+        this.books = books;
     }
     public void whoYouAre(){
         System.out.println(this.getName());
     }
-    public String getName(){
-        return name;
+    public void changePassword(String passwordOld, String passwordNew){
+        if(passwordOld.equals(this.getPassword())){
+            setPassword(passwordNew);
+        }
+    }
+    public List<Book> getBooks(){
+        return books;
+    }
+    public void setBooks(List<Book> books){
+        this.books = books;
     }
     public long getId(){
         return id;
@@ -40,10 +53,10 @@ public class Member extends Person {
     public int getBooksIssued(){
         return booksIssued;
     }
-    public String getDateOfMembership(){
+    public Date getDateOfMembership(){
         return dateOfMembership;
     }
-    public long getPhoneNumber(){
+    public String getPhoneNumber(){
         return phoneNumber;
     }
     public String getPassword(){
@@ -51,9 +64,6 @@ public class Member extends Person {
     }
     public UserType getUserType(){
         return userType;
-    }
-    public void setName(String name){
-        this.name = name;
     }
     public void setId(long id){
         this.id = id;
@@ -73,11 +83,11 @@ public class Member extends Person {
     public void setBooksIssued(int booksIssued){
         this.booksIssued = booksIssued;
     }
-    public void setDateOfMembership(String dateOfMembership){
+    public void setDateOfMembership(Date dateOfMembership){
         this.dateOfMembership = dateOfMembership;
     }
-    public void setPhoneNumber(long phoneNumber){
-        if(getPhoneNumber() == 0L){
+    public void setPhoneNumber(String phoneNumber){
+        if(getPhoneNumber().equals(null)){
             System.out.println("You need to set up a password in order to enter your phone number.");
         } else {
             Scanner myObj = new Scanner(System.in);
@@ -93,5 +103,114 @@ public class Member extends Person {
     }
     public void setUserType(UserType userType){
         this.userType = userType;
+    }
+
+    @Override
+    public void borrowBook(String name) {
+        for(Book book: Library.getInstance().getBooks()){
+            if(book.getName().equals(name) && book.isAvailable() == true){
+                switch (this.getUserType()){
+                    case VIP :
+                        if (this.getBooksIssued() <= 9) {
+                            System.out.println("Aradığınız kitap sistemde mevcuttur. Kiralama için ödenecek tutar: " + book.getRentPrice());
+                            this.payBill(book.getRentPrice());
+                            book.setDateOfPurchase(new Date());
+                            List<Book> books = Library.getInstance().getBooks();
+                            books.remove(book);
+                            Library.getInstance().setBooks(books);
+                            List<Book> memberBooks = this.getBooks();
+                            memberBooks.add(book);
+                            book.changeOwner(this);
+                            this.setBooks(memberBooks);
+                            this.incBookIssued();
+                        } else {
+                            System.out.println("Sistemden totalde 10 kitap kiralanmış daha fazla almadan önce kitapları geri getirin.");
+                        }
+                    case STUDENT :
+                        if (this.getBooksIssued() <= 4) {
+                            System.out.println("Aradığınız kitap sistemde mevcuttur. Kiralama için ödenecek tutar: " + book.getRentPrice() * 0.25);
+                            this.payBill(book.getRentPrice()*0.25);
+                            book.setDateOfPurchase(new Date());
+                            List<Book> books = Library.getInstance().getBooks();
+                            books.remove(book);
+                            Library.getInstance().setBooks(books);
+                            List<Book> memberBooks = this.getBooks();
+                            memberBooks.add(book);
+                            book.changeOwner(this);
+                            this.setBooks(memberBooks);
+                            this.incBookIssued();
+                        } else {
+                            System.out.println("Sistemden toplamda 5 kitap kiralanmış daha fazla almadan önce kitapları geri getirin.");
+                        }
+                    case STANDARD:
+                        if(this.getBooksIssued() <= 4) {
+                            System.out.println("Aradığınız kitap sistemde mevcuttur. Kiralama için ödenecek tutar: " + book.getRentPrice());
+                            this.payBill(book.getRentPrice());
+                            book.setDateOfPurchase(new Date());
+                            List<Book> books = Library.getInstance().getBooks();
+                            books.remove(book);
+                            Library.getInstance().setBooks(books);
+                            List<Book> memberBooks = this.getBooks();
+                            memberBooks.add(book);
+                            book.changeOwner(this);
+                            this.setBooks(memberBooks);
+                            this.incBookIssued();
+                        } else {
+                            System.out.println("Sistemden toplamda 5 kitap kiralanmış daha fazla almadan önce kitapları geri getirin.");
+                        }
+                    default:
+                        System.out.println("Üyenin abone tipini belirtmek zorundasınız.");
+                        break;
+                }
+            } else if (book.getName().equals(name) && book.isAvailable() == false){
+                System.out.println("Aradığınız kitap başkası tarafından alınmış bulunmaktadır.");
+            }
+        }
+        System.out.println("Aradığınız kitap ismi ile sistemde kayıtlı kitap bulunamamıştır.");
+    }
+    public void incBookIssued(){
+        setBooksIssued(getBooksIssued()+1);
+    }
+    public void decBookIssued(){
+        setBooksIssued((getBooksIssued()-1) <=0 ? 0 : getBooksIssued()-1);
+    }
+    public void payBill(double price){
+        Manager.getInstance().setBudget(Manager.getInstance().getBudget() + price);
+        System.out.println("Ödeme yapılmmıştır.");
+    }
+
+    @Override
+    public void returnBook(Book book) {
+        int diff = book.getDateOfPurchase().compareTo(new Date());
+        if( diff > 30){
+            payBill((diff-30)*0.5);
+        }
+        List<Book> books = Library.getInstance().getBooks();
+        books.add(book);
+        Library.getInstance().setBooks(books);
+        System.out.println("Kitap sisteme eklenmiştir.");
+        this.decBookIssued();
+    }
+
+    @Override
+    public void showBooks(Set<Book> books) {
+        for(Book book: this.getBooks()){
+            System.out.println(book.getName());
+        }
+    }
+
+    @Override
+    public String toString() {
+        return "Member{" +
+                "id=" + id +
+                ", name='" + name + '\'' +
+                ", address=" + address +
+                ", booksIssued=" + booksIssued +
+                ", dateOfMembership='" + dateOfMembership + '\'' +
+                ", phoneNumber=" + phoneNumber +
+                ", password='" + password + '\'' +
+                ", userType=" + userType +
+                ", books=" + books +
+                '}';
     }
 }

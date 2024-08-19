@@ -4,9 +4,12 @@ public class Janitor extends Employee{
     private String name;
     private Key key;
     private int workHour;
-    private long phoneNumber;
+    private String phoneNumber;
 
-    public Janitor(String name, Key key, int workHour, long phoneNumber){
+    public Janitor(){
+
+    }
+    public Janitor(String name, Key key, int workHour, String phoneNumber){
         super(name, key, workHour, phoneNumber);
     }
     public void whoYouAre(){
@@ -15,17 +18,17 @@ public class Janitor extends Employee{
     public String getName(){
         return name;
     }
+    public void setName(String name){
+        this.name = name;
+    }
     public Key getKey(){
         return key;
     }
     public int getWorkHour(){
         return workHour;
     }
-    public long getPhoneNumber(){
+    public String getPhoneNumber(){
         return phoneNumber;
-    }
-    public void setName(String name){
-        this.name = name;
     }
     public void setKey(Key key){
         this.key = key;
@@ -33,7 +36,17 @@ public class Janitor extends Employee{
     public void setWorkHour(int workHour){
         this.workHour = workHour;
     }
-    public void setPhoneNumber(long phoneNumber){
+    public void setPhoneNumber(String phoneNumber){
         this.phoneNumber = phoneNumber;
+    }
+
+    @Override
+    public String toString() {
+        return "Janitor{" +
+                "name='" + name + '\'' +
+                ", key=" + key +
+                ", workHour=" + workHour +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                '}';
     }
 }
