@@ -33,6 +33,6 @@ public enum Genre {
     SPORTS,
     HISTORY,
     ART,
-    POPULAR_SCIENCE;
-
+    POPULAR_SCIENCE,
+    NONE,
 }

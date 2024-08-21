@@ -5,6 +5,7 @@ import com.aksoy.library.Library;
 import com.aksoy.person.author.Author;
 import com.aksoy.person.employee.Employee;
 import com.aksoy.person.employee.Key;
+import com.aksoy.person.employee.Librarian;
 import com.aksoy.person.employee.Manager;
 import com.aksoy.person.member.Address;
 import com.aksoy.person.member.Member;
@@ -18,7 +19,7 @@ public class Main {
         rowlingBooks.add("Harry Potter and the Philosopher’s Stone");
         rowlingBooks.add("Harry Potter and the Chamber of Secrets");
         Author rowling = new Author("J.K.Rowling", rowlingBooks);
-        Book n1 = new Book(1000001, rowling, "Harry Potter and the Philosopher’s Stone", 1,
+        Book n1 = new Book(11, rowling, "Harry Potter and the Philosopher’s Stone", 1,
                 true, 1.25, new Date(), 214, 15.75, Condition.FINE, Genre.FANTASY, null);
         Book n2 = new Book(1000002, rowling, "Harry Potter and the Chamber of Secrets", 1,
                 true, 1.25, new Date(), 214, 15.75, Condition.FINE, Genre.FANTASY, null);
@@ -44,9 +45,12 @@ public class Main {
                 System.out.println("Sisteme hoş geldin " + Manager.getInstance().getName() + "!");
                 while (true){
                     String operation;
-                    System.out.println("Lütfen yapmak istediğiniz işlemi yazınız: check budget, buy book, hire librarian, hire janitor, show employees, pay salary, switch to librarian account");
-                    operation = input.nextLine().toLowerCase();
+                    System.out.println("Lütfen yapmak istediğiniz işlemi yazınız: check budget, buy book, hire librarian, hire janitor, show employees, pay salary, switch to librarian account, exit");
+                    operation = input.nextLine().toLowerCase().trim();
                     switch (operation) {
+                        case "exit":
+                            System.out.println("Çıkış yapılıyor.");
+                            return;
                         case "check budget":
                             System.out.println("Toplam bütçe ekrana yansıtılıyor...");
                             System.out.println("Bütçeniz: " + Manager.getInstance().checkBudget());
@@ -56,6 +60,9 @@ public class Main {
                             String name = input.nextLine().toLowerCase();
                             System.out.println("Kitabın yazarını giriniz.");
                             String author = input.nextLine().toUpperCase();
+                            System.out.println("Kitap için id giriniz:");
+                            Long id = input.nextLong();
+                            input.nextLine();
                             System.out.println("Kitabın fiyatını giriniz.");
                             int price = input.nextInt();
                             System.out.println("Kitabın baskısını giriniz.");
@@ -63,10 +70,13 @@ public class Main {
                             System.out.println("Kitabın kiralanma ücretini giriniz.");
                             double rent = input.nextDouble();
                             Date date = new Date();
-                            System.out.println("Lütfen kitabın sayfa sayısını giriniz.2");
+                            System.out.println("Lütfen kitabın sayfa sayısını giriniz.");
                             int pages = input.nextInt();
-                            Manager.getInstance().buyBook(new Book(0,new Author(author, null), name, edition, true, rent, date, pages,
-                                    price, Condition.AS_NEW, null, null));
+                            input.nextLine();
+                            System.out.println("Kitabın türünü giriniz.");
+                            String genreBook = input.nextLine().toUpperCase();
+                            Manager.getInstance().buyBook(new Book(id,new Author(author, null), name, edition, true, rent, date, pages,
+                                    price, Condition.AS_NEW, Library.getInstance().bringGenre(genreBook), new Member()));
                             break;
                         case "hire librarian":
                             System.out.println("Çalışacak kişinin ismini giriniz.");
@@ -97,14 +107,18 @@ public class Main {
                             }
                             break;
                         case "switch to librarian account":
+                            if(!Library.getInstance().getEmployees().stream().anyMatch(employee -> employee instanceof Librarian)){
+                                System.out.println("Sisteme kayıtlı bir kütüphaneci bulunamamıştır, işe alım yapınız.");
+                                break;
+                            }
                             System.out.println("Lütfen şifrenizi giriniz.");
                             key = input.nextLine();
                             String librarianKey = Library.getInstance().getLibrarian()==null?"":Library.getInstance().getLibrarian().getPassword();
                             if(key.equals(librarianKey)) {
                                 System.out.println("Sisteme hoş geldin " + Library.getInstance().getLibrarian().getName() + "!");
                                 while(true){
-                                    System.out.println("Lütfen yapmak istediğiniz işlemi yazınız.");
-                                    operation = input.nextLine().toLowerCase();
+                                    System.out.println("Lütfen yapmak istediğiniz işlemi yazınız: search book, show category, verify member, show author books, update book, create member, remove book, issue book, take book back, exit");
+                                    operation = input.nextLine().toLowerCase().trim();
                                     switch (operation) {
                                         case "search book":
                                             System.out.println("Kitabı nasıl aratmak istediğinizi yazınız: yazar, id veya isim ");
@@ -126,14 +140,37 @@ public class Main {
                                                     String bookName = input.nextLine();
                                                     Library.getInstance().getLibrarian().searchBook(bookName);
                                                     break;
+                                                default:
+                                                    System.out.println("Verilen seçeneklerden birini seçiniz");
+                                                    break;
                                             }
                                             break;
                                         case "show category":
                                             System.out.println("Görüntülemek istediğiniz kategoriyi giriniz: ");
-                                            String genre = input.nextLine().toUpperCase();
-                                            Library.getInstance().bringCategory(genre);
+                                            String genree = input.nextLine().toUpperCase();
+                                            Library.getInstance().bringCategory(genree);
                                             break;
-                                        case "check member":
+                                        case "update book":
+                                            System.out.println("Güncellenecek kitabın idsini giriniz");
+                                            Long idBook = input.nextLong();
+                                            System.out.println("Kitabın temizlik durumunu giriniz: ");
+                                            input.nextLine();
+                                            String clean = input.nextLine();
+                                            Condition stat = Library.getInstance().bringCondition(clean);
+                                            System.out.println("Kitabın yeni kiralama fiyatını giriniz:");
+                                            Double priceBook = input.nextDouble();
+                                            input.nextLine();
+                                            Library.getInstance().getLibrarian().updateBook(idBook, stat, priceBook);
+                                        case "show author books":
+                                            System.out.println("Kitaplarını görüntülemek istediğiniz yazarın adını giriniz:");
+                                            String authorName = input.nextLine();
+                                            Library.getInstance().bringAuthorBooks(authorName);
+                                            break;
+                                        case "verify member":
+                                            if(Library.getInstance().getMembers().isEmpty()){
+                                                System.out.println("Sisteme kayıtlı hiç üye yoktur.");
+                                                break;
+                                            }
                                             System.out.println("Üyenin şifresini giriniz.");
                                             String memberPassword = input.nextLine();
                                             Library.getInstance().getLibrarian().verifyMember(memberPassword);
@@ -158,25 +195,14 @@ public class Main {
                                             Address memberAdress = new Address(city, street, zipCode, apartman, flatNo);
                                             System.out.println("Telefon numarası giriniz:");
                                             String phoneNumber = input.nextLine();
+                                            System.out.println("Üye tipini belirleyiniz: VIP, Student, Standart");
+                                            String usertype = input.nextLine();
+                                            UserType type = Library.getInstance().getLibrarian().createUserType(usertype);
                                             System.out.println("Üye için şifre belirleyiniz:");
                                             String passwordMember = input.nextLine();
-                                            Member member = new Member(memberName, memberId, memberAdress, 0, new Date(), phoneNumber,passwordMember, UserType.STANDARD, null
+                                            Member member = new Member(memberName, memberId, memberAdress, 0, new Date(), phoneNumber,passwordMember, type, new ArrayList<>()
                                             );
                                             Library.getInstance().getLibrarian().createMember(member);
-                                            break;
-                                        case "create bill":
-                                            System.out.println("Hangi kitabı kiralamak istediğinizi giriniz.");
-                                            String bookName = input.nextLine();
-                                            Library.getInstance().getLibrarian().searchBook(bookName);
-                                            Library.getInstance().getLibrarian().createBill(Library.getInstance().bringBook(bookName));
-                                            break;
-                                        case "calculate fine":
-                                            System.out.println("Geciktirilen gün sayısını giriniz: ");
-                                            int difference = input.nextInt();
-                                            System.out.println("Gecikme için gün başına ödenmesi gereken miktarı giriniz: ");
-                                            double fine = input.nextDouble();
-                                            double totalFine = Library.getInstance().getLibrarian().calculateFine(difference, fine);
-                                            System.out.println("Üyenin ödemesi gereken total gecikme ücreti: " + totalFine);
                                             break;
                                         case "remove book":
                                             System.out.println("Sistemden çıkarılmasını istediğiniz kitabın idsini giriniz:");
@@ -185,21 +211,28 @@ public class Main {
                                             break;
                                         case "issue book":
                                             System.out.println("İşlem yapmak istediğiniz kitabın idsini giriniz.");
-                                            long id = input.nextLong();
+                                            long idBk = input.nextLong();
                                             System.out.println("İşlemi yapacak üyenin idsini giriniz.");
-                                            long memberID = input.nextLong();
-                                            Member memberToIssue = Library.getInstance().getLibrarian().findMember(memberID);
-                                            Library.getInstance().getLibrarian().issueBook(id, memberToIssue);
+                                            long membeerID = input.nextLong();
+                                            Library.getInstance().getLibrarian().issueBook(idBk, membeerID);
                                             break;
                                         case "take book back":
                                             System.out.println("Üyenin idsini giriniz: ");
                                             long memberid = input.nextLong();
                                             System.out.println("Geri verilen kitabın idsini giriniz: ");
                                             long bookid = input.nextLong();
-                                            Library.getInstance().getLibrarian().takeBookBack(bookid, memberid);
+                                            System.out.println("Kitabın temizlik durumunu giriniz: ");
+                                            input.nextLine();
+                                            String isclean = input.nextLine();
+                                            Condition status = Library.getInstance().bringCondition(isclean);
+                                            Library.getInstance().getLibrarian().takeBookBack(bookid, memberid, status);
                                             break;
+                                        case "exit":
+                                            System.out.println("Çıkış yapılıyor.");
+                                            return;
                                         default:
                                             System.out.println("Geçersiz giriş! Verilen işlemlerden birini seçiniz: ");
+                                            break;
                                     }
                                 }
                             } else break;

@@ -19,13 +19,15 @@ public class Book {
     private Condition condition;
     private Genre genre;
     private Member owner;
+    public Book(){
 
+    }
     public Book(long id, Author author, String name, int edition, boolean isAvailable,
                 double rentPrice, Date dateOfPurchase, int pages, double price,
                 Condition condition, Genre genre, Member owner){
         this.id = id;
-        this. author = author;
-        this. name = name;
+        this.author = author;
+        this.name = name;
         this.edition = edition;
         this.isAvailable = isAvailable;
         this.rentPrice = rentPrice;
@@ -34,7 +36,7 @@ public class Book {
         this.price = price;
         this.condition = condition;
         this.genre = genre;
-        this.owner = owner;
+        this.owner = new Member();
     }
     public void showOwner(){
         System.out.println(this.getAuthor());
@@ -138,7 +140,7 @@ public class Book {
                 ", price=" + price +
                 ", condition=" + condition +
                 ", genre=" + genre +
-                ", owner=" + owner +
+                ", owner=" + owner.getId() +
                 '}';
     }
 

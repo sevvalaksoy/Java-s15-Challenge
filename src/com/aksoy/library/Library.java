@@ -36,7 +36,7 @@ public class Library {
     public Book bringBook(String name){
         List<Book> books = getBooks();
         if (books == null) {
-            System.out.println("Kitap listesi bulunamadı.");
+            System.out.println("Hiç kitap bulunamadı.");
             return null;
         }
         for (Book book : books) {
@@ -58,20 +58,26 @@ public class Library {
     public List<Book> bringAuthorBooks(String name){
         List<Book> books = new ArrayList<>();
         for(Book book: getBooks()){
-            if(book.getAuthor().equals(name)){
+            if(book.getAuthor().getName().equals(name)){
                 books.add(book);
             }
         }
         if(books.equals(null)) {
             System.out.println("Sistemde bu yazara ait kitap bulunmamaktadır.");
             return null;
-        } else {
-            return books;
         }
+        System.out.println(books);
+        return books;
     }
     public void bringCategory(String genre) {
         boolean result = true;
-        Genre genreEnum = Genre.valueOf(genre);
+        Genre genreEnum;
+        try {
+            genreEnum = Genre.valueOf(genre);
+        } catch (IllegalArgumentException e){
+            System.out.println("Böyle bir kategori bulunamamıştır.");
+            return;
+        }
         for(Book book : getBooks()){
             if(book.getGenre().equals(genreEnum)){
                 System.out.println(book.getName());
@@ -79,6 +85,26 @@ public class Library {
             }
         }
         if(result) System.out.println("Bu türde kitap bulunamamıştır.");
+    }
+    public Genre bringGenre(String genre){
+        Genre genreEnum;
+        try {
+            genreEnum = Genre.valueOf(genre);
+            return genreEnum;
+        } catch (IllegalArgumentException e){
+            System.out.println("Böyle bir tür bulunamamıştır.");
+        }
+        return Genre.NONE;
+    }
+    public Condition bringCondition(String clean){
+        Condition condition;
+        try {
+            condition = Condition.valueOf(clean);
+            return condition;
+        } catch (IllegalArgumentException e){
+            System.out.println("Bu şekilde bir seçenek bulunamadı.");
+        }
+        return Condition.UNKNOWN;
     }
     public void deleteBook(Book kitap){
         for(Book book: getBooks()){

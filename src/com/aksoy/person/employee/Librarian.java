@@ -1,13 +1,13 @@
 package com.aksoy.person.employee;
 
 import com.aksoy.library.Book;
+import com.aksoy.library.Condition;
 import com.aksoy.library.Library;
 import com.aksoy.person.author.Author;
 import com.aksoy.person.member.Member;
+import com.aksoy.person.member.UserType;
 
-import java.util.Date;
-import java.util.List;
-import java.util.Objects;
+import java.util.*;
 
 public class Librarian extends Employee implements LibrarianBookMethods{
     private String name;
@@ -15,6 +15,7 @@ public class Librarian extends Employee implements LibrarianBookMethods{
     private int workHour;
     private String phoneNumber;
     private String password;
+    private Map<Member, Double> bills = new HashMap<>();
 
     public Librarian(){
 
@@ -101,37 +102,33 @@ public class Librarian extends Employee implements LibrarianBookMethods{
     @Override
     public void removeBook(long id) {
         Book book = searchBook(id);
+        if(book == null){
+            System.out.println("Aranan kitap sistemde bulunamamıştır.");
+        }
         for(Book kitap: Library.getInstance().getBooks()){
             if(kitap.equals(book)){
                 List<Book> newList = Library.getInstance().getBooks();
                 newList.remove(book);
                 Library.getInstance().setBooks(newList);
-                System.out.println("Kitap başarı bir şekilde sistemden silinmiştir.");
+                System.out.println("Kitap başarılı bir şekilde sistemden silinmiştir.");
                 break;
             }
         }
-        System.out.println("Aranan kitap sistemde bulunamamıştır.");
     }
 
     @Override
     public Book searchBook(Long id) {
-        boolean result = true;
         for(Book kitap: Library.getInstance().getBooks()){
             if(kitap.getId() == id){
-                result = false;
                 System.out.println("Sistemde " + id + " idli kitap bulunmaktadır.");
                 if(kitap.isAvailable()){
                     System.out.println("Kitap kiralanabilir.");
-                    return kitap;
                 } else {
                     System.out.println("Kitap başkası tarafından kiralanmıştır.");
-                    return kitap;
-                }
+                }return kitap;
             }
         }
-        if(result){
-            System.out.println("Sistemde bu id ile bir kitap bulunamamıştır.");
-        } return null;
+        System.out.println("Sistemde bu id ile bir kitap bulunamamıştır."); return null;
     }
     @Override
     public void searchBook(String name) {
@@ -168,20 +165,32 @@ public class Librarian extends Employee implements LibrarianBookMethods{
     }
 
     @Override
-    public void issueBook(Long id, Member member) {
+    public void issueBook(Long id, long memberID) {
+        Member member = Library.getInstance().getMembers().stream()
+                .filter(m -> m.getId() == memberID)
+                .findFirst()
+                .orElse(null);
+        if (member == null) {
+            System.out.println("Üye bulunamadı.");
+            return;
+        }
         if(verifyMember(member.getPassword())){
+            Book book = new Book();
             for(Book kitap: Library.getInstance().getBooks()){
                 if(kitap.getId() == id){
                     if(kitap.isAvailable() && member.getBooksIssued() < 5){
                         kitap.setOwner(member);
                         kitap.setAvailable(false);
                         kitap.setDateOfPurchase(new Date());
-                        Library.getInstance().getBooks().remove(kitap);
+                        createBill(kitap,member);
+                        book = kitap;
                         member.incBookIssued();
                         member.getBooks().add(kitap);
                         Library.getInstance().getGivenBooks().put(member, member.getBooks());
+                        System.out.println("Kitap başarılı bir şekilde kiralanmıştır.");
+                        System.out.println(member);
                     } else if(kitap.isAvailable() && member.getBooksIssued() >= 5) {
-                        System.out.println("Üyenin daha fazla kitap alamaz.");
+                        System.out.println("Üyen daha fazla kitap alamaz.");
                     }else {
                         System.out.println("Kitap başkası tarafından kiralanmıştır.");
                     }
@@ -189,32 +198,48 @@ public class Librarian extends Employee implements LibrarianBookMethods{
                     System.out.println("Sistemde bu id ile bir kitap bulunamamıştır.");
                 }
             }
+            Library.getInstance().getBooks().remove(book);
         } else {
-            System.out.println("Girilen şifre hatalıdır, kitap kiralanamamıştır.");
+            System.out.println("Üye adı veya şifre hatalıdır, kitap kiralanamamıştır.");
         }
     }
     @Override
-    public void takeBookBack(long bookid, long memberid){
-        Book book = searchBook(bookid);
+    public void takeBookBack(long bookid, long memberid, Condition condition){
+        Member member = findMember(memberid);
+        List<Book> books = Library.getInstance().getGivenBooks().get(member);
+        Book book = new Book();
+        for(Book b:books){
+            if(b.getId() == bookid){
+                book = b;
+            }
+        }
+        double prevCondition = book.getCondition().getPrice();
+        updateBook(bookid, condition, book.getRentPrice());
+        double lastCondition = book.getCondition().getPrice();
+        Manager.getInstance().setBudget(Manager.getInstance().getBudget() + prevCondition-lastCondition);
+        System.out.println("Kitabın kullanım şekli nedeni ile ödenmesi gereken tutar: " + (prevCondition-lastCondition));
+        int diff = book.getDateOfPurchase().compareTo(new Date());
+        if( diff > 30){
+            Manager.getInstance().setBudget(Manager.getInstance().getBudget() + calculateFine(diff, 0.5));
+            System.out.println("Kitap " + (diff-30) + " gün kadar geciktirilmiştir, ödenecek ceza tutarı: " + calculateFine(diff, 0.5));
+        }
         book.setDateOfPurchase(null);
         book.setOwner(null);
         book.setAvailable(true);
         Library.getInstance().getBooks().add(book);
-        Member member = findMember(memberid);
         member.decBookIssued();
         member.getBooks().remove(book);
         Library.getInstance().getGivenBooks().put(member, member.getBooks());
-        int diff = book.getDateOfPurchase().compareTo(new Date());
-        if( diff > 30){
-            Manager.getInstance().setBudget(Manager.getInstance().getBudget() + calculateFine(diff, 0.5));
-        }
+        bills.put(member,bills.get(member)-book.getRentPrice());
         System.out.println("Kitap geri alınmıştır.");
     }
     public double calculateFine(int diff, double rate) {
         return (diff-30) * rate;
     }
-    public void createBill(Book book){
-        System.out.println("Sisteme ödemeniz gereken tutar: " + book.getRentPrice());
+    public void createBill(Book book, Member member){
+        Double price = book.getRentPrice();
+        System.out.println("Sisteme ödenecek tutar: " + price);
+        bills.put(member,bills.getOrDefault(member,0.0)+price);
     }
     public Member findMember(long id){
         for(Member member: Library.getInstance().getMembers()){
@@ -223,5 +248,21 @@ public class Librarian extends Employee implements LibrarianBookMethods{
             }
         }
         return null;
+    }
+    public void updateBook(long id, Condition condition, double price ){
+        Book book = searchBook(id);
+        book.setCondition(condition);
+        book.setRentPrice(price);
+        System.out.println("Kitap güncellenmiştir!");
+    }
+    public UserType createUserType(String type){
+        UserType userType;
+        try {
+            userType = UserType.valueOf(type);
+            return userType;
+        } catch (IllegalArgumentException e){
+            System.out.println("Bu şekilde bir seçenek bulunamadı.");
+        }
+        return UserType.STANDARD;
     }
 }

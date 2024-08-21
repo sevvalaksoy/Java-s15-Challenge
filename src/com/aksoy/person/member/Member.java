@@ -6,9 +6,10 @@ import com.aksoy.person.Person;
 import com.aksoy.person.employee.Manager;
 
 import java.util.*;
+import java.util.stream.Collectors;
 
 public class Member extends Person implements MemberBookMethods{
-    private long id;
+    private Long id;
     private String name;
     private Address address;
     private int booksIssued;
@@ -17,10 +18,12 @@ public class Member extends Person implements MemberBookMethods{
     private String password;
     private UserType userType;
     private List<Book> books;
+    public Member(){
 
-    public Member(String name, long id, Address address, int booksIssued, Date dateOfMembership,
+    }
+    public Member(String name, Long id, Address address, int booksIssued, Date dateOfMembership,
                   String phoneNumber, String password, UserType userType, List<Book> books){
-        super(name);
+        this.name= name;
         this.id = id;
         this.address = address;
         this.booksIssued = booksIssued;
@@ -44,8 +47,11 @@ public class Member extends Person implements MemberBookMethods{
     public void setBooks(List<Book> books){
         this.books = books;
     }
-    public long getId(){
+    public Long getId(){
         return id;
+    }
+    public String getName(){
+        return name;
     }
     public Address getAddress(){
         return address;
@@ -65,7 +71,7 @@ public class Member extends Person implements MemberBookMethods{
     public UserType getUserType(){
         return userType;
     }
-    public void setId(long id){
+    public void setId(Long id){
         this.id = id;
     }
     public void setAddress(Address address){
@@ -201,6 +207,9 @@ public class Member extends Person implements MemberBookMethods{
 
     @Override
     public String toString() {
+        String bookNames = books.stream()
+                .map(Book::getName)
+                .collect(Collectors.joining(", "));
         return "Member{" +
                 "id=" + id +
                 ", name='" + name + '\'' +
@@ -210,7 +219,19 @@ public class Member extends Person implements MemberBookMethods{
                 ", phoneNumber=" + phoneNumber +
                 ", password='" + password + '\'' +
                 ", userType=" + userType +
-                ", books=" + books +
+                ", books=" + bookNames +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Member member)) return false;
+        return id == member.id && booksIssued == member.booksIssued && Objects.equals(name, member.name) && Objects.equals(address, member.address) && Objects.equals(dateOfMembership, member.dateOfMembership) && Objects.equals(phoneNumber, member.phoneNumber) && Objects.equals(password, member.password) && userType == member.userType && Objects.equals(books, member.books);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(id, name, address, booksIssued, dateOfMembership, phoneNumber, password, userType, books);
     }
 }

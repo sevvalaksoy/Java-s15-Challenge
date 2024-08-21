@@ -44,4 +44,15 @@ public class Address {
     public void setFlatNo(int flatNo){
         this.flatNo = flatNo;
     }
+
+    @Override
+    public String toString() {
+        return "Address{" +
+                "city='" + city + '\'' +
+                ", street='" + street + '\'' +
+                ", zipCode=" + zipCode +
+                ", apartment='" + apartment + '\'' +
+                ", flatNo=" + flatNo +
+                '}';
+    }
 }
