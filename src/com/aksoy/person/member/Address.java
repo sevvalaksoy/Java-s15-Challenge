@@ -14,6 +14,7 @@ public class Address {
         this.apartment = apartment;
         this.flatNo = flatNo;
     }
+
     public String getCity(){
         return city;
     }

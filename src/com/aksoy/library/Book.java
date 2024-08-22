@@ -53,9 +53,8 @@ public class Book {
     public void changeOwner(Member owner){
         setOwner(owner);
     }
-    public long getId() {
-        return id;
-    }
+
+    public long getId() {return id;}
     public void setId(long id) {
         this.id = id;
     }

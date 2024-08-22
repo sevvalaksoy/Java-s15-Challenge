@@ -18,9 +18,10 @@ public class Member extends Person implements MemberBookMethods{
     private String password;
     private UserType userType;
     private List<Book> books;
-    public Member(){
 
+    public Member(){
     }
+
     public Member(String name, Long id, Address address, int booksIssued, Date dateOfMembership,
                   String phoneNumber, String password, UserType userType, List<Book> books){
         this.name= name;
@@ -33,82 +34,15 @@ public class Member extends Person implements MemberBookMethods{
         this.userType = userType;
         this.books = books;
     }
+
     public void whoYouAre(){
         System.out.println(this.getName());
     }
+
     public void changePassword(String passwordOld, String passwordNew){
         if(passwordOld.equals(this.getPassword())){
             setPassword(passwordNew);
         }
-    }
-    public List<Book> getBooks(){
-        return books;
-    }
-    public void setBooks(List<Book> books){
-        this.books = books;
-    }
-    public Long getId(){
-        return id;
-    }
-    public String getName(){
-        return name;
-    }
-    public Address getAddress(){
-        return address;
-    }
-    public int getBooksIssued(){
-        return booksIssued;
-    }
-    public Date getDateOfMembership(){
-        return dateOfMembership;
-    }
-    public String getPhoneNumber(){
-        return phoneNumber;
-    }
-    public String getPassword(){
-        return password;
-    }
-    public UserType getUserType(){
-        return userType;
-    }
-    public void setId(Long id){
-        this.id = id;
-    }
-    public void setAddress(Address address){
-        if(getPassword().isEmpty()){
-            System.out.println("You need to set up a password in order to type in your address.");
-        } else {
-            Scanner myObj = new Scanner(System.in);
-            System.out.println("Enter password");
-            String psword = myObj.nextLine();
-            if(psword.equals(this.password)){
-                this.address = address;
-            }
-        }
-    }
-    public void setBooksIssued(int booksIssued){
-        this.booksIssued = booksIssued;
-    }
-    public void setDateOfMembership(Date dateOfMembership){
-        this.dateOfMembership = dateOfMembership;
-    }
-    public void setPhoneNumber(String phoneNumber){
-        if(getPhoneNumber().equals(null)){
-            System.out.println("You need to set up a password in order to enter your phone number.");
-        } else {
-            Scanner myObj = new Scanner(System.in);
-            System.out.println("Enter password");
-            String psword = myObj.nextLine();
-            if(psword.equals(this.password)){
-                this.phoneNumber = phoneNumber;
-            }
-        }
-    }
-    public void setPassword(String password){
-        this.password = password;
-    }
-    public void setUserType(UserType userType){
-        this.userType = userType;
     }
 
     @Override
@@ -174,12 +108,15 @@ public class Member extends Person implements MemberBookMethods{
         }
         System.out.println("Aradığınız kitap ismi ile sistemde kayıtlı kitap bulunamamıştır.");
     }
+
     public void incBookIssued(){
         setBooksIssued(getBooksIssued()+1);
     }
+
     public void decBookIssued(){
         setBooksIssued((getBooksIssued()-1) <=0 ? 0 : getBooksIssued()-1);
     }
+
     public void payBill(double price){
         Manager.getInstance().setBudget(Manager.getInstance().getBudget() + price);
         System.out.println("Ödeme yapılmmıştır.");
@@ -202,6 +139,78 @@ public class Member extends Person implements MemberBookMethods{
     public void showBooks(Set<Book> books) {
         for(Book book: this.getBooks()){
             System.out.println(book.getName());
+        }
+    }
+
+    public List<Book> getBooks(){
+        return books;
+    }
+    public void setBooks(List<Book> books){
+        this.books = books;
+    }
+    public Long getId(){
+        return id;
+    }
+    public String getName(){
+        return name;
+    }
+    public Address getAddress(){
+        return address;
+    }
+    public int getBooksIssued(){
+        return booksIssued;
+    }
+    public Date getDateOfMembership(){
+        return dateOfMembership;
+    }
+    public String getPhoneNumber(){
+        return phoneNumber;
+    }
+    public String getPassword(){
+        return password;
+    }
+    public UserType getUserType(){
+        return userType;
+    }
+    public void setId(Long id){
+        this.id = id;
+    }
+    public void setBooksIssued(int booksIssued){
+        this.booksIssued = booksIssued;
+    }
+    public void setDateOfMembership(Date dateOfMembership){
+        this.dateOfMembership = dateOfMembership;
+    }
+    public void setPassword(String password){
+        this.password = password;
+    }
+    public void setUserType(UserType userType){
+        this.userType = userType;
+    }
+
+    public void setAddress(Address address){
+        if(getPassword().isEmpty()){
+            System.out.println("You need to set up a password in order to type in your address.");
+        } else {
+            Scanner myObj = new Scanner(System.in);
+            System.out.println("Enter password");
+            String psword = myObj.nextLine();
+            if(psword.equals(this.password)){
+                this.address = address;
+            }
+        }
+    }
+
+    public void setPhoneNumber(String phoneNumber){
+        if(getPhoneNumber().equals(null)){
+            System.out.println("You need to set up a password in order to enter your phone number.");
+        } else {
+            Scanner myObj = new Scanner(System.in);
+            System.out.println("Enter password");
+            String psword = myObj.nextLine();
+            if(psword.equals(this.password)){
+                this.phoneNumber = phoneNumber;
+            }
         }
     }
 

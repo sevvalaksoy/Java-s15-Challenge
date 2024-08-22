@@ -7,9 +7,10 @@ public abstract class Employee extends Person {
     private Key key;
     private int workHour;
     private String phoneNumber;
-    public Employee(){
 
+    public Employee(){
     }
+
     public Employee(String name, Key key, int workHour, String phoneNumber){
         super(name);
         this.key = key;

@@ -4,11 +4,10 @@ import com.aksoy.library.Book;
 import com.aksoy.library.Library;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 
-public class Manager extends Employee implements Hire{
+public class Manager extends Employee implements Hireable {
     private static Manager instance = new Manager("Aysel", Key.ALL, 12, "5383214567", 950.0, "Kt5F3ljN");
     private String name;
     private Key key;
@@ -25,21 +24,27 @@ public class Manager extends Employee implements Hire{
         this.budget = budget;
         this.password = password;
     }
+
     public static Manager getInstance(){
         return instance;
     }
+
     public double checkBudget(){
         return getBudget();
     }
+
     public void buyBook(Book book){
         if(book.getPrice()>checkBudget()){
             System.out.println("Bu kitabı almak için bütçeniz yetersizdir.");
         } else {
-            System.out.println("Kitap kütüphaneye ekleniyor...");
+            System.out.println("Kitap kütüphaneye eklenmiştir.");
             setBudget(getBudget()-book.getPrice());
-            Library.getInstance().getBooks().add(book);
+            List<Book> books = Library.getInstance().getBooks();
+            books.add(book);
+            Library.getInstance().setBooks(books);
         }
     }
+
     public void paySalary(double perHourSalary){
         int totalEmployeeWorkHour = (Library.getInstance().getEmployees().size()-1)*8;
         double totalSalary = totalEmployeeWorkHour*perHourSalary;
@@ -48,8 +53,37 @@ public class Manager extends Employee implements Hire{
         } else {
             Manager.getInstance().setBudget(getBudget()-totalSalary);
             System.out.println("Çalışanların ödemeleri yapılmıştır.");
+            System.out.println("Bütçeden kalan miktar: " + getBudget());
         }
     }
+
+    @Override
+    public void hireJanitor(String name, Key key, int workHour, String phoneNumber) {
+        Janitor janitor = new Janitor();
+        janitor.setName(name);
+        janitor.setKey(key);
+        janitor.setPhoneNumber(phoneNumber);
+        janitor.setWorkHour(workHour);
+        Set<Employee> employees = Library.getInstance().getEmployees();
+        employees.add(janitor);
+        Library.getInstance().setEmployees(employees);
+        System.out.println("Görevli işe alınmıştır.");
+    }
+
+    @Override
+    public void hireLibrarian(String name, Key key, int workHour, String phoneNumber, String password) {
+        Librarian librarian = new Librarian();
+        librarian.setKey(key);
+        librarian.setPhoneNumber(phoneNumber);
+        librarian.setName(name);
+        librarian.setPassword(password);
+        librarian.setWorkHour(workHour);
+        Set<Employee> employees = Library.getInstance().getEmployees();
+        employees.add(librarian);
+        Library.getInstance().setEmployees(employees);
+        System.out.println("Kütüphaneci işe alınmıştır.");
+    }
+
     public void whoYouAre(){
         System.out.println(getName());
     }
@@ -90,32 +124,6 @@ public class Manager extends Employee implements Hire{
         this.password = password;
     }
 
-    @Override
-    public void hireJanitor(String name, Key key, int workHour, String phoneNumber) {
-        Janitor janitor = new Janitor();
-        janitor.setName(name);
-        janitor.setKey(key);
-        janitor.setPhoneNumber(phoneNumber);
-        janitor.setWorkHour(workHour);
-        Set<Employee> employees = Library.getInstance().getEmployees();
-        employees.add(janitor);
-        Library.getInstance().setEmployees(employees);
-        System.out.println("Görevli işe alınmıştır.");
-    }
-
-    @Override
-    public void hireLibrarian(String name, Key key, int workHour, String phoneNumber, String password) {
-        Librarian librarian = new Librarian();
-        librarian.setKey(key);
-        librarian.setPhoneNumber(phoneNumber);
-        librarian.setName(name);
-        librarian.setPassword(password);
-        librarian.setWorkHour(workHour);
-        Set<Employee> employees = Library.getInstance().getEmployees();
-        employees.add(librarian);
-        Library.getInstance().setEmployees(employees);
-        System.out.println("Kütüphaneci işe alınmıştır.");
-    }
     @Override
     public String toString() {
         return "Manager{" +

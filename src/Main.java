@@ -26,10 +26,9 @@ public class Main {
         Library.getInstance().addBook(n1);
         Library.getInstance().addBook(n2);
 
-        // Librarian librarian = new Librarian("Şevval", Key.LIBRARY, 8, 544-5415498, "Aj14DfH");
+        System.out.println(Manager.getInstance());//MANAGER INFO
         Set<Employee> employees = new HashSet<>();
         employees.add(Manager.getInstance());
-        System.out.println(Manager.getInstance());
         Library.getInstance().setEmployees(employees);
         Scanner input = new Scanner(System.in);
         String key;
@@ -153,14 +152,15 @@ public class Main {
                                         case "update book":
                                             System.out.println("Güncellenecek kitabın idsini giriniz");
                                             Long idBook = input.nextLong();
+                                            Book book = Library.getInstance().getLibrarian().searchBook(idBook);
                                             System.out.println("Kitabın temizlik durumunu giriniz: ");
                                             input.nextLine();
-                                            String clean = input.nextLine();
+                                            String clean = input.nextLine().toUpperCase();
                                             Condition stat = Library.getInstance().bringCondition(clean);
                                             System.out.println("Kitabın yeni kiralama fiyatını giriniz:");
                                             Double priceBook = input.nextDouble();
                                             input.nextLine();
-                                            Library.getInstance().getLibrarian().updateBook(idBook, stat, priceBook);
+                                            Library.getInstance().getLibrarian().updateBook(book,idBook, stat, priceBook);
                                         case "show author books":
                                             System.out.println("Kitaplarını görüntülemek istediğiniz yazarın adını giriniz:");
                                             String authorName = input.nextLine();
@@ -223,7 +223,7 @@ public class Main {
                                             long bookid = input.nextLong();
                                             System.out.println("Kitabın temizlik durumunu giriniz: ");
                                             input.nextLine();
-                                            String isclean = input.nextLine();
+                                            String isclean = input.nextLine().toUpperCase();
                                             Condition status = Library.getInstance().bringCondition(isclean);
                                             Library.getInstance().getLibrarian().takeBookBack(bookid, memberid, status);
                                             break;

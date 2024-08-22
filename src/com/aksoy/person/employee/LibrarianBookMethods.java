@@ -3,7 +3,6 @@ package com.aksoy.person.employee;
 import com.aksoy.library.Book;
 import com.aksoy.library.Condition;
 import com.aksoy.person.author.Author;
-import com.aksoy.person.member.Member;
 
 public interface LibrarianBookMethods {
     void removeBook(long id);

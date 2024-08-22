@@ -1,6 +1,5 @@
 package com.aksoy.person.author;
 
-import com.aksoy.library.Book;
 import com.aksoy.person.Person;
 
 import java.util.Objects;
@@ -14,6 +13,7 @@ public class Author extends Person {
         this.name= name;
         this.books = books;
     }
+
     public void showBooks(){
         for(String book: this.books){
             System.out.println(book);
@@ -22,6 +22,7 @@ public class Author extends Person {
     public void addBook(String book){
         this.books.add(book);
     }
+
     public void whoYouAre(){
         System.out.println("This is author " + this.getName());
     }

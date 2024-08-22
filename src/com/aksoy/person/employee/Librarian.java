@@ -20,65 +20,13 @@ public class Librarian extends Employee implements LibrarianBookMethods{
     public Librarian(){
 
     }
+
     public Librarian(String name, Key key, int workHour, String phoneNumber, String password){
         super(name, key, workHour, phoneNumber);
         this.password = password;
     }
     public void whoYouAre(){
         System.out.println(getName());
-    }
-    public String getName(){
-        return name;
-    }
-    public void setName(String name){
-        this.name = name;
-    }
-    public Key getKey(){
-        return key;
-    }
-    public int getWorkHour(){
-        return workHour;
-    }
-    public String getPhoneNumber(){
-        return phoneNumber;
-    }
-    public String getPassword(){
-        return password;
-    }
-    public void setKey(Key key){
-        this.key = key;
-    }
-    public void setWorkHour(int workHour){
-        this.workHour = workHour;
-    }
-    public void setPhoneNumber(String phoneNumber){
-        this.phoneNumber = phoneNumber;
-    }
-    public void setPassword(String password){
-        this.password = password;
-    }
-
-    @Override
-    public String toString() {
-        return "Librarian{" +
-                "name='" + name + '\'' +
-                ", key=" + key +
-                ", workHour=" + workHour +
-                ", phoneNumber='" + phoneNumber + '\'' +
-                ", password='" + password + '\'' +
-                '}';
-    }
-
-    @Override
-    public boolean equals(Object o) {
-        if (this == o) return true;
-        if (!(o instanceof Librarian librarian)) return false;
-        return Objects.equals(name, librarian.name) && Objects.equals(password, librarian.password);
-    }
-
-    @Override
-    public int hashCode() {
-        return Objects.hash(name, password);
     }
 
     public void createMember(Member member){
@@ -175,6 +123,7 @@ public class Librarian extends Employee implements LibrarianBookMethods{
             return;
         }
         if(verifyMember(member.getPassword())){
+            boolean result = true;
             Book book = new Book();
             for(Book kitap: Library.getInstance().getBooks()){
                 if(kitap.getId() == id){
@@ -194,9 +143,10 @@ public class Librarian extends Employee implements LibrarianBookMethods{
                     }else {
                         System.out.println("Kitap başkası tarafından kiralanmıştır.");
                     }
-                } else {
-                    System.out.println("Sistemde bu id ile bir kitap bulunamamıştır.");
+                    result = false;
                 }
+            } if(result) {
+                    System.out.println("Sistemde bu id ile bir kitap bulunamamıştır.");
             }
             Library.getInstance().getBooks().remove(book);
         } else {
@@ -214,7 +164,7 @@ public class Librarian extends Employee implements LibrarianBookMethods{
             }
         }
         double prevCondition = book.getCondition().getPrice();
-        updateBook(bookid, condition, book.getRentPrice());
+        updateBook(book, bookid, condition, book.getRentPrice());
         double lastCondition = book.getCondition().getPrice();
         Manager.getInstance().setBudget(Manager.getInstance().getBudget() + prevCondition-lastCondition);
         System.out.println("Kitabın kullanım şekli nedeni ile ödenmesi gereken tutar: " + (prevCondition-lastCondition));
@@ -233,9 +183,11 @@ public class Librarian extends Employee implements LibrarianBookMethods{
         bills.put(member,bills.get(member)-book.getRentPrice());
         System.out.println("Kitap geri alınmıştır.");
     }
+
     public double calculateFine(int diff, double rate) {
         return (diff-30) * rate;
     }
+
     public void createBill(Book book, Member member){
         Double price = book.getRentPrice();
         System.out.println("Sisteme ödenecek tutar: " + price);
@@ -249,12 +201,13 @@ public class Librarian extends Employee implements LibrarianBookMethods{
         }
         return null;
     }
-    public void updateBook(long id, Condition condition, double price ){
-        Book book = searchBook(id);
+
+    public void updateBook(Book book, long id, Condition condition, double price ){
         book.setCondition(condition);
         book.setRentPrice(price);
         System.out.println("Kitap güncellenmiştir!");
     }
+
     public UserType createUserType(String type){
         UserType userType;
         try {
@@ -264,5 +217,59 @@ public class Librarian extends Employee implements LibrarianBookMethods{
             System.out.println("Bu şekilde bir seçenek bulunamadı.");
         }
         return UserType.STANDARD;
+    }
+
+    public String getName(){
+        return name;
+    }
+    public void setName(String name){
+        this.name = name;
+    }
+    public Key getKey(){
+        return key;
+    }
+    public int getWorkHour(){
+        return workHour;
+    }
+    public String getPhoneNumber(){
+        return phoneNumber;
+    }
+    public String getPassword(){
+        return password;
+    }
+    public void setKey(Key key){
+        this.key = key;
+    }
+    public void setWorkHour(int workHour){
+        this.workHour = workHour;
+    }
+    public void setPhoneNumber(String phoneNumber){
+        this.phoneNumber = phoneNumber;
+    }
+    public void setPassword(String password){
+        this.password = password;
+    }
+
+    @Override
+    public String toString() {
+        return "Librarian{" +
+                "name='" + name + '\'' +
+                ", key=" + key +
+                ", workHour=" + workHour +
+                ", phoneNumber='" + phoneNumber + '\'' +
+                ", password='" + password + '\'' +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Librarian librarian)) return false;
+        return Objects.equals(name, librarian.name) && Objects.equals(password, librarian.password);
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(name, password);
     }
 }

@@ -10,6 +10,7 @@ public enum Condition {
 
     private final String description;
     private final double price;
+
     Condition(String description, double price){
         this.description = description;
         this.price = price;
